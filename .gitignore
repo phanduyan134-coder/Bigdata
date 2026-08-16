@@ -1,0 +1,26 @@
+# Python and local environments
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Streamlit local state and secrets
+.streamlit/secrets.toml
+.streamlit/.cache/
+
+# Kafka/Spark runtime output
+data/streaming/
+*.log
+
+# Large legacy models; regenerate with the training scripts when needed
+models/air_quality_model.joblib
+models/pm25_multi_location_model.joblib
+
+# Spark temporary output
+data/processed_spark/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
