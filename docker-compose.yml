@@ -1,24 +1,33 @@
+# =============================================================================
+# CẤU HÌNH CONTAINER HÓA HẠ TẦNG HÀNG ĐỢI PHÂN TÁN APACHE KAFKA (CHẾ ĐỘ KRAFT)
+# =============================================================================
+# - Khởi chạy image chính thức apache/kafka:latest ở chế độ KRaft (Kafka Raft Metadata mode).
+# - Tích hợp đồng thời cả vai trò Broker và Controller trong một node duy nhất, không cần Zookeeper.
+# - Cổng giao tiếp 9092 được ánh xạ ra localhost phục vụ Live Producer và Spark Structured Streaming.
+# - Volume kafka_data bảo đảm lưu trữ phân tán bền vững dữ liệu sự kiện trên ổ đĩa vật lý.
+# =============================================================================
+
 services:
   kafka:
     image: apache/kafka:latest
     container_name: air-quality-kafka
     ports:
-      - "9092:9092"
+      - "9092:9092"                 # Cổng giao tiếp client (Producer và Consumer)
     environment:
       KAFKA_NODE_ID: 1
-      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_PROCESS_ROLES: broker,controller               # Đảm nhiệm đồng thời vai trò Broker & Controller (KRaft)
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"              # Tự động tạo topic khi có dữ liệu mới phát sinh
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
     volumes:
-      - kafka_data:/var/lib/kafka/data
+      - kafka_data:/var/lib/kafka/data                     # Lưu trữ bền vững dữ liệu trên volume đĩa cứng
 
 volumes:
   kafka_data:
